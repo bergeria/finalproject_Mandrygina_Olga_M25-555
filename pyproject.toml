@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "finalproject-mandrygina-olga-m25-555"
+version = "0.1.0"
+description = "Valut Trade"
+authors = ["bergeria <o74183047@gmail.com>"]
+readme = "README.md"
+packages = [ { include = ".." }, ]
+
+
+[tool.poetry.dependencies]
+python = "^3.13"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+project = "main:main"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.14.11"
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+exclude = ["venv", ".venv", "dist", "__pycache__"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = []
+
+

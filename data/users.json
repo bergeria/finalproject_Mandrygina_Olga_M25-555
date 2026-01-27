@@ -1,0 +1,72 @@
+[
+    {
+        "user_id": 0,
+        "username": "test",
+        "hashed_password": "9423c5e32ef057a68e3c4b72ecf48b6cb70effa7d4a36568e918fa52348d0563",
+        "salt": "Xa0pWiwpCe",
+        "registration_date": "2026-01-26T17:01"
+    },
+    {
+        "user_id": 1,
+        "username": "toster10",
+        "hashed_password": "72461d107f824052fbb5f156c21f84a40c42f936e02303880ca193bd91bf8428",
+        "salt": "Lk6bY7eQgA",
+        "registration_date": "2026-01-26T17:01"
+    },
+    {
+        "user_id": 2,
+        "username": "toster30",
+        "hashed_password": "a3316d624f62c622511d8d6ac46082702b9ad21320de17260a2cf25c18b241b6",
+        "salt": "2GPGVip8dG",
+        "registration_date": "2026-01-26T17:03"
+    },
+    {
+        "user_id": 3,
+        "username": "toster40",
+        "hashed_password": "359fcb690609b757a96afba7965f8c18a5f6abba4f9ffd6942c402ebe758db12",
+        "salt": "vcfGrVdSa1",
+        "registration_date": "2026-01-26T17:53"
+    },
+    {
+        "user_id": 4,
+        "username": "toster50",
+        "hashed_password": "30906686cc87c6d61f5d80178ecf8e557b211cfb1b278207257b5225b99de04c",
+        "salt": "PDjOqUlEx3",
+        "registration_date": "2026-01-26T18:56"
+    },
+    {
+        "user_id": 5,
+        "username": "toster60",
+        "hashed_password": "0bd43964c72a96430d06696d5784aa397ff8bd41def2c3ec5b1a29d547ed7b9b",
+        "salt": "cHm2M338r2",
+        "registration_date": "2026-01-27T12:45"
+    },
+    {
+        "user_id": 6,
+        "username": "toster70",
+        "hashed_password": "d5fa3f7cdc341335fd8469a13a7bdb7ad790e236dafded2eb2bd7b532b3e043e",
+        "salt": "d10NYvxw4M",
+        "registration_date": "2026-01-27T13:03"
+    },
+    {
+        "user_id": 7,
+        "username": "toster80",
+        "hashed_password": "5082a03847a48527f41dfd96d95c7fbbf30073112a3bdf9441984adb33440524",
+        "salt": "9FpFer2RRw",
+        "registration_date": "2026-01-27T13:06"
+    },
+    {
+        "user_id": 8,
+        "username": "toster90",
+        "hashed_password": "b769b7b1914b1a583d8e64efe4a7fc20418a3bb0f9e09649dbb1105eaae7ff05",
+        "salt": "SZFSYus3R0",
+        "registration_date": "2026-01-27T13:12"
+    },
+    {
+        "user_id": 9,
+        "username": "toster100",
+        "hashed_password": "90fb6bbf9167a6df15c9438a6a0b87555c74caec06f642e0708d08dd91cfcc8e",
+        "salt": "SXZif4HaQU",
+        "registration_date": "2026-01-27T13:18"
+    }
+]
