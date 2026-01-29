@@ -3,16 +3,21 @@ import os
 
 # COMMANDS - Help
 COMMANDS = {
-  "register" : "зарегистрироваться - Пример register --username alice --password 1234",
+  "register" : "зарегистрироваться - register --username alice --password 1234",
   "login" : "войти в систему - Пример login --username alice --password 1234",
   "show-portfolio" : "посмотреть свой портфель и балансы ",
-  "buy" : "купить валюту",
-  "sell" : "продать валюту",
-  "get-rate" : "получить курс валюты",
+  "get-info" : " Информация о валюте - get-info --currency BTC",
+  "buy" : "купить - Пример buy --currency BTC --amount 0.05",
+  "sell" : "продать - Пример sell --currency EUR --amount 100",
+  "get-rate" : "получить курс - Пример get-rate --from USD --to BTC",
+  "show-rates" : "Все курсы | --top 2 | --currency RUB",
+  "update-rates" : "обновить курсы --source coingecko | exchangerate - По умолчанию — оба источника", # noqa: E501
+  "deposit" : "Внести на баланс (для тестов) - deposit --currency EUR --amount 100 ",
   "logout" : "выйти из системы",
   "quit" : "выйти из программы",
   "help" : "показать это сообщение\n\n",
 }
+
 
 # Функция show_help
 def show_help():

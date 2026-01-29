@@ -1,0 +1,24 @@
+INFO 2026-01-29T16:18:16 valutatrade_hub.parser_service.updater Обновление курсов началось ...
+INFO 2026-01-29T16:18:16 valutatrade_hub.parser_service.updater Получение курсов от CoinGeckoClient
+INFO 2026-01-29T16:18:26 valutatrade_hub.parser_service.updater Получено 4 курсов от CoinGeckoClient
+INFO 2026-01-29T16:18:26 valutatrade_hub.parser_service.updater Получение курсов от ExchangeRateApiClient
+INFO 2026-01-29T16:18:27 valutatrade_hub.parser_service.updater Получено 6 курсов от ExchangeRateApiClient
+INFO 2026-01-29T16:18:27 valutatrade_hub.parser_service.updater Обновление курсов прошло успешно (10 курсов(а))
+INFO 2026-01-29T16:21:45 Обновление курсов началось ...
+INFO 2026-01-29T16:21:45 Получение курсов от CoinGeckoClient
+INFO 2026-01-29T16:21:50 Получено 4 курсов от CoinGeckoClient
+INFO 2026-01-29T16:21:50 Получение курсов от ExchangeRateApiClient
+INFO 2026-01-29T16:21:52 Получено 6 курсов от ExchangeRateApiClient
+INFO 2026-01-29T16:21:52 Обновление курсов прошло успешно (10 курсов(а))
+INFO 2026-01-29T16:43:19 Обновление курсов началось ...
+INFO 2026-01-29T16:43:19 Получение курсов от CoinGeckoClient
+INFO 2026-01-29T16:43:24 Получено 4 курсов от CoinGeckoClient
+INFO 2026-01-29T16:43:24 Получение курсов от ExchangeRateApiClient
+INFO 2026-01-29T16:43:30 Получено 6 курсов от ExchangeRateApiClient
+INFO 2026-01-29T16:43:30 Обновление курсов прошло успешно (10 курсов(а))
+INFO 2026-01-29T20:02:42 Обновление курсов началось ...
+INFO 2026-01-29T20:02:42 Получение курсов от CoinGeckoClient
+INFO 2026-01-29T20:02:50 Получено 4 курсов от CoinGeckoClient
+INFO 2026-01-29T20:02:50 Получение курсов от ExchangeRateApiClient
+INFO 2026-01-29T20:02:58 Получено 6 курсов от ExchangeRateApiClient
+INFO 2026-01-29T20:02:58 Обновление курсов прошло успешно (10 курсов(а))

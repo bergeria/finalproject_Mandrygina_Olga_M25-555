@@ -8,6 +8,9 @@ import string
 from datetime import datetime
 from typing import Dict
 
+from valutatrade_hub.parser_service.config import ParserConfig
+from valutatrade_hub.parser_service.storage import JsonRatesStorage
+
 #Глобалная переменная - хранит текущего пользователя
 current_user = None
 
@@ -60,7 +63,7 @@ class Wallet:
         self._validate_amount(amount)
 
         if amount > self._balance:
-            raise ValueError("Недостаточно средств на балансе")
+            raise ValueError(f"Недостаточно средств на балансе {self.currency_code}")
 
         self._balance -= amount
 
@@ -114,13 +117,10 @@ class Wallet:
 
 # Класс Portfolio - Ключевой
 class Portfolio:
-    def __init__(self, user : "User"): # user - это : "User"
+    def __init__(self, user : "User"): # "User"
         self._user = user
         self._user_id = user.user_id
         self._wallets: Dict[str, Wallet] = {}
-
-        # Чтобы лишний раз файлы не перезаписывать
-        self._has_changed = False
 
         # Получаем текущую рабочую директорию.
         c_path = os.getcwd() 
@@ -167,21 +167,17 @@ class Portfolio:
         """Пересчет общего баланса в разные валюты- по умолчанию USD"""
 
         #На всякий случай верний регистр
-        base_currency = base_currency.upper()
-
         #Курс целевой валюты
-        exchange_rates = self._get_exchange_rates(base_currency)
+        base_currency = base_currency.upper()
 
         total = 0.0
         for code, wallet in self._wallets.items():
-            if code not in exchange_rates:
-                continue
-            total += wallet.balance * exchange_rates[code]
+            total += wallet.balance * self._get_exchange_rates(code, base_currency)
 
         return round(total, 4)
 
 
-    def buy_currency(self, currency_code: str, amount_usd: float) -> None:
+    def buy_currency(self, currency_code: str, currency_amount: float) -> None:
         
         """Покупка валюты за USD"""
 
@@ -200,19 +196,15 @@ class Portfolio:
         usd_wallet = self.get_wallet("USD")
         target_wallet = self.get_wallet(currency_code)
 
-        #Берем словарь курсов к USD
-        exchange_rates = self._get_exchange_rates("USD")
-        print(' Курсы - ',exchange_rates,'\n')
+        #Берем курс currency_code к USD
+        rate = self._get_exchange_rates(currency_code, "USD")
 
-        #Мы в пролете
-        if currency_code not in exchange_rates:
+        #И опять в пролете
+        if rate < 0 :
             raise ValueError("Нет курса для данной валюты")
 
-        #Берем курс USD к currency_code
-        rate = exchange_rates[currency_code]
-
         #Ищем сколько нужно израсходовать USD
-        currency_amount = amount_usd / rate
+        amount_usd = currency_amount * rate
 
         #Снимаем деньги с кошелька USD
         usd_wallet.withdraw(amount_usd)
@@ -220,9 +212,8 @@ class Portfolio:
         #Кладем деньги на кошельк currency_code
         target_wallet.deposit(currency_amount)
 
-        # Файл нужно будет перезаписывать
-        self._has_changed = True
-
+        # Ссохраняем Портфолито
+        self.save_portfolio()
 
     def sell_currency(self, currency_code: str, amount: float) -> None:
 
@@ -239,15 +230,13 @@ class Portfolio:
         wallet = self.get_wallet(currency_code)
         usd_wallet = self.get_wallet("USD")
 
-        #Берем словарь курсов к USD
-        exchange_rates = self._get_exchange_rates("USD")
+        #Берем курс currency_code к USD
+        rate = self._get_exchange_rates(currency_code, "USD")
 
         #И опять в пролете
-        if currency_code not in exchange_rates:
+        if rate < 0 :
             raise ValueError("Нет курса для данной валюты")
 
-        #Берем курс currency_code к USD
-        rate = exchange_rates[currency_code]
         usd_amount = amount * rate
 
         #Снимаем деньги с кошелька currency_code
@@ -256,28 +245,64 @@ class Portfolio:
         #Кладем деньги на кошельк USD
         usd_wallet.deposit(usd_amount)
 
-        # Файл нужно будет перезаписывать
-        self._has_changed = True
+        # Ссохраняем Портфолито
+        self.save_portfolio()
 
     @staticmethod
-    def _get_exchange_rates(base_currency: str) -> dict:
+    def _get_exchange_rates( from_currency: str, base_currency: str) -> float:
         """
+        Временная заглушка - была
         Фиктивные курсы:
         1 единица валюты = X base_currency
         """
-        rates = {
-            "USD": {"USD": 1.0, "EUR": 1.1, "BTC": 87866.00, "RUB": 0.01300},
-            "EUR": {"EUR": 1.0, "USD": 0.91, "BTC": 79885, "RUB":0.01094},
-            "BTC": {"USD": 0.00001138, "EUR": 0.00001252, "BTC": 1.0, "RUB":0.00000015},
-            "RUB": {"RUB": 1.0, "USD": 76.91, "EUR": 91.45, "BTC": 6757741.3},
-            "source": "ParserService",
-            "last_refresh": "2026-01-26T16:35:00"
-        }
 
-        if base_currency not in rates:
-            raise ValueError("Базовая валюта не поддерживается")
+        # Для корректного подсчета баланса
+        if from_currency == base_currency :
+            return 1
 
-        return rates[base_currency]
+        config = ParserConfig()
+        storage_rates = JsonRatesStorage(config.RATES_FILE_PATH)
+        j_table = storage_rates.load()  # Курсы в формате JSON
+
+        # Если мы здесь - то файл прочитался нормально
+        # выше по стеку вызовов нужно сделать обработку исключения
+        try:
+            meta = j_table["meta"]
+        except ValueError:
+            print("Нет информации о дате и источниках обновления !!")
+            return
+
+        try:
+            t_curses = j_table["rates"]
+        except ValueError:
+            print("Нет информации о курсах !!")
+
+        match True:
+            case x if base_currency == "USD":  # Типа прямой курс
+                code_name = from_currency + '_' + base_currency
+                try:
+                    d_curs = t_curses[code_name]
+                except ValueError:
+                    print("Нет информации о курсах !!")
+                return d_curs
+            case x if from_currency == "USD":  # Обратный курс
+                code_name = base_currency + '_' + from_currency
+                try:
+                    d_curs = t_curses[code_name]
+                except ValueError:
+                    print("Нет информации о курсах !!")
+                d_curs = 1 / d_curs  # Ну вряд ли курс может быть равен 0
+                return d_curs
+            case _:  # Кросс курс
+                cross_name1 = from_currency + '_' + "USD"
+                cross_name2 = base_currency + '_' + "USD"
+                d_curs1 = t_curses.get(cross_name1)
+                d_curs2 = t_curses.get(cross_name2)
+                if d_curs1 is None or d_curs2 is None: #Нет информации о курсах
+                    return -1
+                d_curs = d_curs1 / d_curs2  # Ну вряд ли курс может быть равен 0
+                return d_curs
+
 
     def wallets_to_dict(self) -> dict:
         """
@@ -389,13 +414,10 @@ class Portfolio:
 
         print("\n Портфель пользователя ", self.user.username, ":\n" ) #(база: USD)
 
-        # берем курсы к USD - пока из затычки
-        t_rate = self._get_exchange_rates("USD")
-
         # идем по кошелькам
         for item in self._wallets :
             t_wal = self.get_wallet(item).get_balance_info()
-            t_calc = t_wal["balance"] * t_rate[item]
+            t_calc = t_wal["balance"] * self._get_exchange_rates( item, "USD")
             print(f' - {item} :  {t_wal["balance"]:10.4f} -> {t_calc:10.4f}\n')
 
         print(' -----------------------------------------------')
@@ -406,11 +428,6 @@ class Portfolio:
     def save_portfolio( self) -> None :
 
         """Схраняем текущее состояние портфолио пользователя"""
-
-        # Если False - не торговали
-        if not self._has_changed :
-            print(' Кошельки без изменений\n')
-            return
 
         # Бывают прикольчики
         if not os.path.exists( self._f_portfolios) :

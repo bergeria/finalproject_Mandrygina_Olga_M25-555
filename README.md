@@ -48,6 +48,38 @@ python main.py -
 
 
 
+register       : зарегистрироваться - Пример register --username alice --password 1234
+
+login"         : войти в систему - Пример login --username alice --password 1234
+
+show-portfolio : посмотреть свой портфель и балансы
+
+buy            : купить - Пример buy --currency BTC --amount 0.05
+
+sell           : продать - Пример sell --currency EUR --amount 100
+
+get-rate       : получить курс - Пример get-rate --from USD --to BTC
+
+get-info       : Информация о валюте - get-info --currency BTC
+
+show-rates     : Все имеющиеся курсы
+
+update-rates   : обновить курсы - Пример --source coingecko | exchangerate - По умолчанию — оба источника
+
+deposit        : Внести на баланс deposit --currency EUR --amount 100
+
+logout         : Выйти из системы
+
+quit           : Выйти из программы
+
+help           : Показать это сообщение
+
+
+
+
+
+
+
 register зарегистрироваться ();
 
 

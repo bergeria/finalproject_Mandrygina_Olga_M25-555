@@ -1,0 +1,1 @@
+# Singleton DatabaseManager (абстракция над JSON-хранилищем)

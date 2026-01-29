@@ -68,5 +68,33 @@
         "hashed_password": "90fb6bbf9167a6df15c9438a6a0b87555c74caec06f642e0708d08dd91cfcc8e",
         "salt": "SXZif4HaQU",
         "registration_date": "2026-01-27T13:18"
+    },
+    {
+        "user_id": 10,
+        "username": "toster25",
+        "hashed_password": "0a3ff9e175acafa21e02fb1fbc61828942d809bd264f1da5e459baab3a923009",
+        "salt": "qxRWu3rGW6",
+        "registration_date": "2026-01-27T21:00"
+    },
+    {
+        "user_id": 11,
+        "username": "toster16",
+        "hashed_password": "4eb80471517ef9c1cf775477cc9feeec505080b6a9955974b5a1442f99644954",
+        "salt": "sNAAiPChwq",
+        "registration_date": "2026-01-28T21:03"
+    },
+    {
+        "user_id": 12,
+        "username": "toster23",
+        "hashed_password": "02aaa4b71f581375de27ad46878a91c238e1c600cfb65d125d71fe78254638df",
+        "salt": "nfZQZ7WiVB",
+        "registration_date": "2026-01-29T09:18"
+    },
+    {
+        "user_id": 13,
+        "username": "toster29",
+        "hashed_password": "134c348c5fadc1926ed99f91c9c294a1f0f59bfd9c25701772cac711fa999e6e",
+        "salt": "LUixqRApFi",
+        "registration_date": "2026-01-29T21:28"
     }
 ]
