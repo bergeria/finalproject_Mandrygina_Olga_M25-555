@@ -8,8 +8,12 @@ import string
 from datetime import datetime
 from typing import Dict
 
+from valutatrade_hub.core.exceptions import (
+    InsufficientFundsError
+)
 from valutatrade_hub.parser_service.config import ParserConfig
 from valutatrade_hub.parser_service.storage import JsonRatesStorage
+
 
 #Глобалная переменная - хранит текущего пользователя
 current_user = None
@@ -63,7 +67,11 @@ class Wallet:
         self._validate_amount(amount)
 
         if amount > self._balance:
-            raise ValueError(f"Недостаточно средств на балансе {self.currency_code}")
+            raise InsufficientFundsError(
+                self._balance,
+                amount,
+                self.currency_code
+            )
 
         self._balance -= amount
 
@@ -129,8 +137,8 @@ class Portfolio:
         self._f_portfolios = os.path.join( c_path, 'data', 'portfolios.json')
 
         # по умолчанию создаём USD-кошелёк
-        #self.add_currency("USD")
-        #self.add_currency("BTC")
+        self.add_currency("USD")
+
         # загружаем портфолио пользователя из файла
         self.load_portfolio()
 

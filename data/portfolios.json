@@ -3,7 +3,7 @@
         "user_id": 0,
         "wallets": {
             "USD": {
-                "balance": 9280.85166977186
+                "balance": 9248.214594053845
             },
             "BTC": {
                 "balance": 0.0567
@@ -15,10 +15,10 @@
                 "balance": 23076.923076923078
             },
             "CNY": {
-                "balance": 210.0
+                "balance": 310.0
             },
             "CHF": {
-                "balance": 100.0
+                "balance": 140.0
             }
         }
     },
@@ -92,6 +92,26 @@
             },
             "EUR": {
                 "balance": 10000.0
+            }
+        }
+    },
+    {
+        "user_id": 14,
+        "wallets": {
+            "USD": {
+                "balance": 129.47927172819468
+            },
+            "CHF": {
+                "balance": 155.0
+            },
+            "CNY": {
+                "balance": 25.0
+            },
+            "BTC": {
+                "balance": 0.0
+            },
+            "EUR": {
+                "balance": 50.0
             }
         }
     }

@@ -96,5 +96,12 @@
         "hashed_password": "134c348c5fadc1926ed99f91c9c294a1f0f59bfd9c25701772cac711fa999e6e",
         "salt": "LUixqRApFi",
         "registration_date": "2026-01-29T21:28"
+    },
+    {
+        "user_id": 14,
+        "username": "toster21",
+        "hashed_password": "4af41386390564a679c41326a8e14157d773e9742d61633011d665de7486aca0",
+        "salt": "GTAqCcXS9J",
+        "registration_date": "2026-01-30T12:10"
     }
 ]

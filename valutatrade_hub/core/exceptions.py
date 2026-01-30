@@ -56,7 +56,7 @@ class InsufficientFundsError(Exception):
         self.code = code
 
         message = (
-            f"Недостаточно средств: доступно {available} {code}, "
+            f"Недостаточно средств: доступно {available:16.8f} {code:16.8f}, "
             f"требуется {required} {code}"
         )
         super().__init__(message)
@@ -67,93 +67,3 @@ class ApiRequestError(Exception):
         self.reason = reason
         super().__init__(f"Ошибка при обращении к внешнему API: {reason}")
 
-
-
-#def get_currency(code: str) -> Currency:
-#    if not isinstance(code, str):
-#        raise TypeError("Currency code must be a string")#
-
-#    normalized = code.strip().upper()
-
-##    try:
- #       return _CURRENCY_REGISTRY[normalized]
- #   except KeyError:
- #       raise CurrencyNotFoundError(normalized)
-
-
-# wallet.py
-#from exceptions import InsufficientFundsError
-#from currencies import Currency
-#
-
-#class Wallet:
-#    def __init__(self, currency: Currency, balance: float = 0.0) -> None:
-#        self.currency = currency
-#        self.balance = float(balance)
-
-#    def withdraw(self, amount: float) -> None:
-#        if amount <= 0:
-#            raise ValueError("Withdraw amount must be positive")
-
-#        if self.balance < amount:
-#            raise InsufficientFundsError(
-#                available=self.balance,
-#                required=amount,
-#                code=self.currency.code,
-#            )
-
-#        self.balance -= amount
-
-
-# usecases/sell.py
-#from wallet import Wallet
-
-#
-#def sell(wallet: Wallet, amount: float) -> None:
-#    """
-#    Use-case продажи актива.
-#    Может выбросить InsufficientFundsError.
-#    """
-#    wallet.withdraw(amount)
-
-    # логика продажи (заглушка)
-    # send order to exchange
-
-
-# services/rates.py
-#from exceptions import ApiRequestError
-
-
-#def get_rate(from_code: str, to_code: str) -> float:
-#    """
-#    Получение курса валют.
-#    """
-#    try:
-#        # заглушка внешнего API
-#        raise TimeoutError("Request timeout")
-#    except Exception as exc:
-#        raise ApiRequestError(str(exc)) from exc
-
-
-#try:
-#    wallet.withdraw(10)
-#except InsufficientFundsError as exc:
-#    print(str(exc))
-#except CurrencyNotFoundError as exc:
-#    print(str(exc))
-#except ApiRequestError as exc:
-#    print(str(exc))
-
-
-#[ Domain ]
-#  Currency
-#  Wallet
-#  Exceptions  ← ВАЖНО: здесь живут сообщения
-
-#[ Application ]
-#  sell()
-#  buy()
-
-#[ Infrastructure ]
-#  get_rate()
-#  external APIs

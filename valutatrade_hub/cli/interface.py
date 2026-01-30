@@ -3,12 +3,9 @@
 #Сделать консольный интерфейс, через который пользователь сможет:
 
 import shlex
-from sys import exception
 
 from valutatrade_hub.core.exceptions import (
-    CurrencyNotFoundError,
-    InsufficientFundsError,
-    ApiRequestError
+    CurrencyNotFoundError
 )
 
 from valutatrade_hub.core.usecases import (
@@ -137,10 +134,10 @@ def process_command( command):
         case "get-info" : # получить текущий курс одной валюты к другой
             try:
                 get_currency_info( d_command["args"] )
-            except( ValueError ) as __err :
-                print('{__err}')
-            except( CurrencyNotFoundError ) as _err :
-                print('{__err}')
+            except ValueError as e:
+                print( e)
+            except CurrencyNotFoundError as e :
+                print( e)
 
         case  "show-rates":  # показать текущие курсы
             show_rates(d_command["args"])
@@ -171,4 +168,14 @@ def base_work() -> None:
     # здесь делаем обработку
     while not action == "quit":
         action = get_input('Введите команду - :')  # Запрашиваем команду от пользователя
-        process_command(action)  # Вызываем обработчик логики игры
+        process_command(action)  # Вызываем обработчик команд
+
+
+#try:
+#    wallet.withdraw(10)
+#except InsufficientFundsError as exc:
+#    print(str(exc))
+#except CurrencyNotFoundError as exc:
+#    print(str(exc))
+#except ApiRequestError as exc:
+#    print(str(exc))

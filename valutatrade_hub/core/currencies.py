@@ -3,6 +3,7 @@
 
 from abc import ABC, abstractmethod
 
+from valutatrade_hub.core.exceptions import CurrencyNotFoundError
 
 class Currency(ABC):
     def __init__(self, name: str, code: str) -> None:
@@ -125,11 +126,6 @@ class CryptoCurrency(Currency):
     #Конец CryptoCurrency
 
 
-# Исключение для неизвестной валюты
-class CurrencyNotFoundError(KeyError):
-    pass
-
-
 # Реестр / фабрика валют
 _CURRENCY_REGISTRY: dict[str, Currency] = {
     "USD": FiatCurrency(
@@ -143,28 +139,28 @@ _CURRENCY_REGISTRY: dict[str, Currency] = {
         issuing_country="Eurozone",
     ),
     "GBP": FiatCurrency(
-        name="Euro",
-        code="EUR",
+        name="British pound sterling",
+        code="GBP",
         issuing_country="United Kingdom",
     ),
     "JPY": FiatCurrency(
-        name="Euro",
-        code="EUR",
+        name="Japanese yen",
+        code="JPY",
         issuing_country="Japan",
     ),
     "RUB": FiatCurrency(
-        name="Euro",
-        code="EUR",
+        name="Russian rouble",
+        code="RUB",
         issuing_country="Russian Federation",
     ),
     "CNY": FiatCurrency(
-        name="Euro",
-        code="EUR",
+        name="Chinese Yuan",
+        code="CNY",
         issuing_country="China",
     ),
     "CHF": FiatCurrency(
-        name="Euro",
-        code="EUR",
+        name="CHF Swiss franc",
+        code="CHF",
         issuing_country="Switzerland",
     ),
     "BTC": CryptoCurrency(

@@ -6,6 +6,10 @@ import json
 import os
 
 from valutatrade_hub.core.currencies import get_currency
+from valutatrade_hub.core.exceptions import (
+    CurrencyNotFoundError,
+    InsufficientFundsError
+)
 from valutatrade_hub.core.models import (
     Portfolio,
     User,
@@ -80,14 +84,16 @@ def show_rates( __args : dict ) -> None :
     if __args.get("top") is not None: # самые дорогие из всех
         # Сортируем по убыванию value
         cnt = int(__args.get("top"))
-        sorted_data = dict(sorted(curses["rates"].items(), key=lambda item: item[1], reverse=True)[:cnt])
+        sorted_data = dict(sorted(curses["rates"].items(),
+                                  key=lambda item: item[1],
+                                  reverse=True)[:cnt])
         for key, value in sorted_data.items():
             print(f" -  {key}: {value:16.8f}")
         return
 
     if __args.get("currency") is not None: # Курс одной валюты
         if __args.get("currency").upper == "USD" :
-            print(f' -  "USD_USD" = 1.00\n')
+            print(' -  "USD_USD" = 1.00\n')
             return
         c_name = "".join(f'{__args.get("currency")}_USD')
         crs = curses["rates"].get(c_name)
@@ -174,10 +180,24 @@ def sell( __arg_list : dict) :
         return
 
     __currency = __arg_list.get( "currency", None) 
-    __amount = float(__arg_list.get( "amount", None))
+    __amount = __arg_list.get( "amount", None)
 
     if __currency is None or __amount is None :
         print('Некорректная команда')
+        return
+
+    # Здесь нужно проверить код валюты на наличие в курсах
+    try:
+        get_currency(__currency)
+    except CurrencyNotFoundError as e:
+        print( e)
+        return
+
+    # Проверяем количество на предмет числового значения
+    try :
+        __amount = float(__amount)
+    except ValueError as e:
+        print('\n\n Количество указано не верно !!!\n\n')
         return
 
     #Прверяем желаемое количество валюты
@@ -193,15 +213,16 @@ def sell( __arg_list : dict) :
         current_portf.sell_currency( __currency, __amount)
     except ValueError as e:
         print(f"Ошибка операции: {e}")
+        return
+    except KeyError as e:
+        print(f"Ошибка операции: {e}")
+        return
+    except InsufficientFundsError as e:
+        print(f"Ошибка операции: {e}")
+        return
 
-    # Ссохраняем Портфолито
+    # Сохраняем Портфолито
     current_portf.save_portfolio()
-
-    # Портфолито после продажи
-    #quitcurrent_portf.show_portfolio()
-
-    #Пример команды - sell --currency EUR --amount 150
-    #Логика - продать валюту 150 EUR, полученные $ в кошелек
 
     #Конец sell
 
@@ -222,10 +243,24 @@ def buy( __arg_list : dict) -> None:
         return
 
     __currency = __arg_list.get( "currency", None) 
-    __amount = float(__arg_list.get( "amount", None))
+    __amount = __arg_list.get( "amount", None)
 
     if __currency is None or __amount is None :
         print('Некорректная команда')
+        return
+
+    # Здесь нужно проверить код валюты на наличие в курсах
+    try:
+        get_currency(__currency)
+    except CurrencyNotFoundError as e:
+        print( e)
+        return
+
+    # Проверяем количество на предмет числового значения
+    try :
+        __amount = float(__amount)
+    except ValueError as e:
+        print('\n\n Количество указано не верно !!!\n\n')
         return
 
     #Прверяем желаемое количество валюты
@@ -241,15 +276,19 @@ def buy( __arg_list : dict) -> None:
         current_portf.buy_currency( __currency, __amount)
     except ValueError as e:
         print(f"Ошибка операции: {e}")
+        return
+    except KeyError as e:
+        print(f"Ошибка операции: {e}")
+        return
+    except InsufficientFundsError as e:
+        print(f"Ошибка операции: {e}")
+        return
 
-    # Ссохраняем Портфолито
-#    current_portf.save_portfolio()
+    # Сохраняем Портфолио
+    current_portf.save_portfolio()
 
-    # Портфолито после покупки
+    # Портфолио после покупки
     #current_portf.show_portfolio()
-
-    #Пример команды - buy --currency EUR --amount 150.05
-    #Логика - купить валюту EUR на  150.05$
 
     #Конец Buy
 
@@ -271,14 +310,27 @@ def deposit( __args : dict) -> None:
         print('\n\nКоманда не опознана \n\n')
         return
 
+    # Здесь нужно проверить код валюты на наличие в курсах
+    try:
+        get_currency(currency_code)
+    except CurrencyNotFoundError as e:
+        print( e)
+        return
+
+    # Нужно проверить наличие кошелька
     # Если такого кошелька еще не было - добавляем
     if currency_code not in current_portf._wallets:
         current_portf.add_currency(currency_code)
-    #Берем кошелек - нужно проверить наличие кошелька
+
+    # Берем кошелек
     target_wallet = current_portf.get_wallet( __args["currency"])
 
     #Пополняем кошелек
-    target_wallet.deposit( float(amount))
+    try:
+        target_wallet.deposit( float(amount))
+    except ValueError as e:
+        print( e)
+        return
 
     # Ссохраняем Портфолито
     current_portf.save_portfolio()
@@ -355,7 +407,7 @@ def register( __arg_list : dict) :
                 print(f' Имя занято - {d_item["username"]}!!!\n')
                 return
 
-    # Был файл или небыл -> продолжаем
+    # Был файл или не был -> продолжаем
     # И имя пользователя является уникальным
 
     # создаем экземпляр Users и храним его в глобальной переменной current_user
@@ -474,10 +526,10 @@ def logout() :
 
     #Типа выходим - заполняем глобальные переменные
 
-    # Очищаем профиль текущего ползователя
+    # Очищаем профиль текущего пользователя
     current_portf = None
 
-    # Очищаем текущего ползователя
+    # Очищаем текущего пользователя
     current_user = None
 
     print( " Выход пользователя из системы - logout\n")
@@ -492,7 +544,12 @@ def get_currency_info ( __args : dict) :
     if code is None :
         raise ValueError("Ошибка в параметрах !!!")
 
-    currency = get_currency(code)
+    try:
+        currency = get_currency( code)
+    except CurrencyNotFoundError( code) as e:
+        print( e)
+        return
+
     print(currency.get_display_info())
 
 

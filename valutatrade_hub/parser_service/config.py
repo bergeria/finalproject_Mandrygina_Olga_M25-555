@@ -16,8 +16,9 @@ class ParserConfig:
         default_factory=lambda: os.getenv("EXCHANGERATE_API_KEY")
     )
 
+    #"https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,tether&vs_currencies=usd"
     # URL'ы - сервисов
-    COINGECKO_URL: str = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,tether&vs_currencies=usd"
+    COINGECKO_URL: str = "https://api.coingecko.com/api/v3/simple/price?"
 
     # https://v6.exchangerate-api.com/v6/d7cf6fad79c863ee3aede32b/latest/USD
     EXCHANGERATE_API_URL: str = "https://v6.exchangerate-api.com/v6"

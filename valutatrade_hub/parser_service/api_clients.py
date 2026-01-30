@@ -33,6 +33,7 @@ class CoinGeckoClient( BaseApiClient):
     def __init__(self, config: ParserConfig):
         self._config = config
 
+
     def fetch_rates(self) -> dict[str, float]:
         ids = ",".join(self._config.CRYPTO_ID_MAP.values())
         vs_currency = self._config.BASE_FIAT_CURRENCY.lower()
