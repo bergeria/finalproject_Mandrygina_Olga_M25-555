@@ -1,16 +1,15 @@
-# операции чтения/записи exchange_rates.json
-#Интерфейс хранилища (минимальный контракт)
 #storage.py
 
 
+import json
+import os
+import tempfile
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-import json
-import os
 from pathlib import Path
-import tempfile
 from typing import Dict, Iterable
+
 
 def get_safe_path(path: str) -> Path:
     """

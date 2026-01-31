@@ -1,7 +1,10 @@
 #Основной цикл работы с пользователем
 
+import os
+
 from valutatrade_hub.cli.interface import base_work
 from valutatrade_hub.core.utils import clear_screen, show_help
+from valutatrade_hub.infra.settings import SettingsLoader
 from valutatrade_hub.logging_config import setup_logging
 
 #заготовка под sheduler
@@ -11,15 +14,21 @@ from valutatrade_hub.logging_config import setup_logging
 #from valutatrade_hub.parser_service.config ParserConfig
 
 
-# По идее системы должна быть многопользовательская
+# По идее система должна быть многопользовательская
 # Поэтому к файлам данных обращаемся только по необходимости
 
 def main():
 
     """ Торговля валютами"""
 
+    # Инициализируем SettingsLoader - Паттерн Singleton
+    config_path = os.path.join( os.getcwd(), "config.json")
+    settings = SettingsLoader(config_path)
+
+    __logs_dir = os.path.join( os.getcwd(), settings.get("paths", "logs_dir"))
+
     #Запуск логгера
-    setup_logging()
+    setup_logging( logs_dir = __logs_dir)
 
     print('Программа торговли валютами')
 

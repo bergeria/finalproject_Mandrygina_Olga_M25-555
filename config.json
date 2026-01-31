@@ -1,0 +1,13 @@
+{
+  "paths": {
+    "data_dir": "data",
+    "rates_json": "rates.json",
+    "exchange_json": "exchange_rates.json",
+    "portfolios_json": "portfolios.json",
+    "users_json": "users.json",
+    "logs_dir": "logs"
+  },
+  "rates": {
+    "ttl_seconds": 1200
+  }
+}

@@ -1,48 +1,84 @@
-INFO 2026-01-29T16:18:16 valutatrade_hub.parser_service.updater Обновление курсов началось ...
-INFO 2026-01-29T16:18:16 valutatrade_hub.parser_service.updater Получение курсов от CoinGeckoClient
-INFO 2026-01-29T16:18:26 valutatrade_hub.parser_service.updater Получено 4 курсов от CoinGeckoClient
-INFO 2026-01-29T16:18:26 valutatrade_hub.parser_service.updater Получение курсов от ExchangeRateApiClient
-INFO 2026-01-29T16:18:27 valutatrade_hub.parser_service.updater Получено 6 курсов от ExchangeRateApiClient
-INFO 2026-01-29T16:18:27 valutatrade_hub.parser_service.updater Обновление курсов прошло успешно (10 курсов(а))
-INFO 2026-01-29T16:21:45 Обновление курсов началось ...
-INFO 2026-01-29T16:21:45 Получение курсов от CoinGeckoClient
-INFO 2026-01-29T16:21:50 Получено 4 курсов от CoinGeckoClient
-INFO 2026-01-29T16:21:50 Получение курсов от ExchangeRateApiClient
-INFO 2026-01-29T16:21:52 Получено 6 курсов от ExchangeRateApiClient
-INFO 2026-01-29T16:21:52 Обновление курсов прошло успешно (10 курсов(а))
-INFO 2026-01-29T16:43:19 Обновление курсов началось ...
-INFO 2026-01-29T16:43:19 Получение курсов от CoinGeckoClient
-INFO 2026-01-29T16:43:24 Получено 4 курсов от CoinGeckoClient
-INFO 2026-01-29T16:43:24 Получение курсов от ExchangeRateApiClient
-INFO 2026-01-29T16:43:30 Получено 6 курсов от ExchangeRateApiClient
-INFO 2026-01-29T16:43:30 Обновление курсов прошло успешно (10 курсов(а))
-INFO 2026-01-29T20:02:42 Обновление курсов началось ...
-INFO 2026-01-29T20:02:42 Получение курсов от CoinGeckoClient
-INFO 2026-01-29T20:02:50 Получено 4 курсов от CoinGeckoClient
-INFO 2026-01-29T20:02:50 Получение курсов от ExchangeRateApiClient
-INFO 2026-01-29T20:02:58 Получено 6 курсов от ExchangeRateApiClient
-INFO 2026-01-29T20:02:58 Обновление курсов прошло успешно (10 курсов(а))
-INFO 2026-01-30T10:03:53 Обновление курсов началось ...
-INFO 2026-01-30T10:03:53 Получение курсов от CoinGeckoClient
-INFO 2026-01-30T10:03:59 Получено 4 курсов от CoinGeckoClient
-INFO 2026-01-30T10:03:59 Получение курсов от ExchangeRateApiClient
-INFO 2026-01-30T10:04:05 Получено 6 курсов от ExchangeRateApiClient
-INFO 2026-01-30T10:04:05 Обновление курсов прошло успешно (10 курсов(а))
-INFO 2026-01-30T14:04:45 Обновление курсов началось ...
-INFO 2026-01-30T14:04:45 Получение курсов от CoinGeckoClient
-INFO 2026-01-30T14:04:58 Получено 4 курсов от CoinGeckoClient
-INFO 2026-01-30T14:04:58 Получение курсов от ExchangeRateApiClient
-INFO 2026-01-30T14:05:30 Получено 6 курсов от ExchangeRateApiClient
-INFO 2026-01-30T14:05:30 Обновление курсов прошло успешно (10 курсов(а))
-INFO 2026-01-30T14:08:27 Обновление курсов началось ...
-INFO 2026-01-30T14:08:27 Получение курсов от CoinGeckoClient
-INFO 2026-01-30T14:12:50 Получено 4 курсов от CoinGeckoClient
-INFO 2026-01-30T14:12:50 Получение курсов от ExchangeRateApiClient
-INFO 2026-01-30T14:13:10 Получено 6 курсов от ExchangeRateApiClient
-INFO 2026-01-30T14:13:10 Обновление курсов прошло успешно (10 курсов(а))
-INFO 2026-01-30T14:18:24 Обновление курсов началось ...
-INFO 2026-01-30T14:18:24 Получение курсов от CoinGeckoClient
-INFO 2026-01-30T14:19:43 Получено 4 курсов от CoinGeckoClient
-INFO 2026-01-30T14:19:43 Получение курсов от ExchangeRateApiClient
-INFO 2026-01-30T14:20:15 Получено 6 курсов от ExchangeRateApiClient
-INFO 2026-01-30T14:20:15 Обновление курсов прошло успешно (10 курсов(а))
+INFO 2026-01-31T16:10:16 REGISTER user='toster26' result=OK
+INFO 2026-01-31T16:15:46 REGISTER user='toster26' result=OK
+INFO 2026-01-31T16:16:45 REGISTER user='toster26' result=OK
+INFO 2026-01-31T16:21:47 REGISTER user='toster25' result=OK
+INFO 2026-01-31T16:24:54 LOGIN user='toster25' result=OK
+INFO 2026-01-31T16:29:54 LOGIN user='toster25' result=OK
+INFO 2026-01-31T16:32:56 LOGIN user='toster25' result=OK
+INFO 2026-01-31T16:33:32 LOGOUT user='toster25' result=OK
+INFO 2026-01-31T16:39:21 LOGIN user='toster25' result=OK
+INFO 2026-01-31T16:39:56 DEPOSIT user='toster25' currency='CNY' amount=1230.0 result=OK
+INFO 2026-01-31T16:41:22 DEPOSIT user='toster25' currency='CNY' amount=1231.0 result=OK
+INFO 2026-01-31T16:42:08 LOGOUT user='toster25' result=OK
+INFO 2026-01-31T16:42:13 LOGIN user='toster25' result=OK
+INFO 2026-01-31T16:42:28 DEPOSIT user='toster25' currency='CNY' amount=1290.0 result=OK
+INFO 2026-01-31T16:48:12 LOGOUT user='toster25' result=OK
+INFO 2026-01-31T16:48:16 LOGIN user='toster25' result=OK
+INFO 2026-01-31T16:49:01 DEPOSIT user='toster25' currency='USD' amount=10000.0 result=OK
+INFO 2026-01-31T16:52:00 BUY user='toster25' currency='EUR' amount=100.0 result=OK
+INFO 2026-01-31T16:52:24 LOGOUT user='toster25' result=OK
+INFO 2026-01-31T16:54:11 LOGIN user='toster25' result=OK
+INFO 2026-01-31T16:54:23 SELL user='toster25' currency='EUR' amount=20.0 result=OK
+INFO 2026-01-31T16:55:00 LOGOUT user='unknown' result=OK
+INFO 2026-01-31T17:00:04 UPDATE_RATES user='unknown' result=OK
+INFO 2026-01-31T17:01:14 UPDATE_RATES user='unknown' result=OK
+INFO 2026-01-31T17:02:36 UPDATE_RATES user='unknown' result=OK
+INFO 2026-01-31T17:03:35 LOGOUT user='toster25' result=OK
+INFO 2026-01-31T17:21:03 Обновление курсов началось ...
+INFO 2026-01-31T17:21:15 Получение курсов от CoinGeckoClient
+INFO 2026-01-31T17:21:20 Получено 4 курсов от CoinGeckoClient
+INFO 2026-01-31T17:21:20 Получение курсов от ExchangeRateApiClient
+INFO 2026-01-31T17:21:26 Получено 6 курсов от ExchangeRateApiClient
+INFO 2026-01-31T17:21:26 Обновление курсов прошло успешно (10 курсов(а))
+INFO 2026-01-31T17:31:39 LOGIN user='toster16' result=OK
+INFO 2026-01-31T17:32:11 DEPOSIT user='toster16' currency='USD' amount=100.0 result=OK
+INFO 2026-01-31T17:34:54 DEPOSIT user='toster16' currency='EUR' amount=30.0 result=OK
+INFO 2026-01-31T17:36:55 LOGOUT user='toster16' result=OK
+INFO 2026-01-31T17:37:35 LOGIN user='toster25' result=OK
+INFO 2026-01-31T17:38:49 LOGOUT user='toster25' result=OK
+INFO 2026-01-31T17:39:26 LOGIN user='toster25' result=OK
+INFO 2026-01-31T17:41:39 LOGIN user='toster25' result=OK
+INFO 2026-01-31T17:45:23 LOGOUT user='toster25' result=OK
+INFO 2026-01-31T18:47:23 LOGIN user='toster25' result=OK
+INFO 2026-01-31T18:48:00 SELL user='toster25' currency='EUR' amount=20.0 result=OK
+INFO 2026-01-31T18:48:24 BUY user='toster25' currency='EUR' amount=40.0 result=OK
+INFO 2026-01-31T18:48:59 LOGIN user='toster25' result=OK
+INFO 2026-01-31T18:49:24 LOGIN user='toster25' result=OK
+INFO 2026-01-31T18:51:37 LOGIN user='toster25' result=OK
+INFO 2026-01-31T18:52:26 BUY user='toster25' currency='EUR' amount=12.0 result=OK
+INFO 2026-01-31T18:53:04 LOGIN user='toster25' result=OK
+INFO 2026-01-31T18:53:31 LOGOUT user='toster25' result=OK
+INFO 2026-01-31T18:54:06 REGISTER user='toster27' result=OK
+INFO 2026-01-31T18:54:21 LOGIN user='toster27' result=OK
+INFO 2026-01-31T18:55:08 LOGOUT user='toster27' result=OK
+INFO 2026-01-31T18:55:21 LOGIN user='toster27' result=OK
+INFO 2026-01-31T18:57:16 LOGOUT user='toster27' result=OK
+INFO 2026-01-31T18:57:28 LOGIN user='toster27' result=OK
+INFO 2026-01-31T18:59:58 LOGOUT user='toster27' result=OK
+INFO 2026-01-31T19:00:07 LOGIN user='toster27' result=OK
+INFO 2026-01-31T19:01:26 LOGOUT user='toster27' result=OK
+INFO 2026-01-31T19:01:31 LOGIN user='toster27' result=OK
+INFO 2026-01-31T19:01:41 LOGOUT user='toster27' result=OK
+INFO 2026-01-31T19:05:14 LOGIN user='toster27' result=OK
+INFO 2026-01-31T19:06:20 LOGOUT user='toster27' result=OK
+INFO 2026-01-31T19:06:28 LOGIN user='toster16' result=OK
+INFO 2026-01-31T19:07:36 BUY user='toster16' currency='EUR' amount=20.0 result=OK
+INFO 2026-01-31T19:08:26 Обновление курсов началось ...
+INFO 2026-01-31T19:08:26 Получение курсов от CoinGeckoClient
+INFO 2026-01-31T19:08:32 Получено 4 курсов от CoinGeckoClient
+INFO 2026-01-31T19:08:32 Получение курсов от ExchangeRateApiClient
+INFO 2026-01-31T19:08:37 Получено 6 курсов от ExchangeRateApiClient
+INFO 2026-01-31T19:08:37 Обновление курсов прошло успешно (10 курсов(а))
+INFO 2026-01-31T19:09:23 LOGOUT user='toster16' result=OK
+INFO 2026-01-31T19:15:44 REGISTER user='toster30' result=OK
+INFO 2026-01-31T19:16:04 LOGIN user='toster30' result=OK
+INFO 2026-01-31T19:16:30 DEPOSIT user='toster30' currency='USD' amount=10000.0 result=OK
+INFO 2026-01-31T19:17:54 BUY user='toster30' currency='EUR' amount=180.0 result=OK
+INFO 2026-01-31T19:18:31 SELL user='toster30' currency='EUR' amount=20.0 result=OK
+INFO 2026-01-31T19:18:43 Обновление курсов началось ...
+INFO 2026-01-31T19:18:43 Получение курсов от CoinGeckoClient
+INFO 2026-01-31T19:18:48 Получено 4 курсов от CoinGeckoClient
+INFO 2026-01-31T19:18:48 Получение курсов от ExchangeRateApiClient
+INFO 2026-01-31T19:18:54 Получено 6 курсов от ExchangeRateApiClient
+INFO 2026-01-31T19:18:54 Обновление курсов прошло успешно (10 курсов(а))
+INFO 2026-01-31T19:20:22 LOGOUT user='toster30' result=OK

@@ -1,22 +1,22 @@
-# основной модуль обновления курсов
+"""Обновление и агрегация курсов валют."""
 
-#import threading
 import logging
 import time as time_module
 from datetime import datetime, timezone
 
 import requests
 from requests.exceptions import RequestException
+
 from valutatrade_hub.core.exceptions import ApiRequestError
 from valutatrade_hub.parser_service.api_clients import BaseApiClient
+from valutatrade_hub.parser_service.config import ParserConfig
 from valutatrade_hub.parser_service.storage import (
     BaseRatesStorage,
+    ExchangeHistoryStorage,
     ExchangeRateRecord,
-    ExchangeHistoryStorage
 )
-from valutatrade_hub.parser_service.config import ParserConfig
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("actions")
 
 class RatesUpdater:
     """
@@ -71,6 +71,7 @@ class RatesUpdater:
                 logger.exception(
                     "Неизвестная ошибка в %s",
                     client_name,
+                    exc,
                 )
                 continue
 
@@ -115,7 +116,7 @@ class RatesUpdater:
             sources.append(client_name)
 
         if not all_rates:
-            logger.error("Обновление курсов завершилось неудачей")
+            logger.error("Обновление курсов завершилось неудачей - попробуйте позже !")
             return
 
         # Формируем словарь в нужном формате для exchange_rates.json

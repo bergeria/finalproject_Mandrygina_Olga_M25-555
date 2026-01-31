@@ -1,4 +1,4 @@
-# реализация классов
+"""Реализация доменных моделей проекта."""
 
 import hashlib
 import json
@@ -8,20 +8,10 @@ import string
 from datetime import datetime
 from typing import Dict
 
-from valutatrade_hub.core.exceptions import (
-    InsufficientFundsError
-)
+from valutatrade_hub.core.exceptions import InsufficientFundsError
 from valutatrade_hub.parser_service.config import ParserConfig
 from valutatrade_hub.parser_service.storage import JsonRatesStorage
 
-
-#Глобалная переменная - хранит текущего пользователя
-current_user = None
-
-#Глобалная переменная - хранит портфолио текущего пользователя
-current_portf = None
-
-# Может и одного current_portf будет достаточно
 
 #класс Wallet
 class Wallet:
@@ -119,9 +109,6 @@ class Wallet:
 
 # Логика где-то здесь User -> Portfolio -> Wallet
 
-#Пример использования
-#portfolio.get_wallet("USD").deposit(1000)
-#print(portfolio.get_total_value("USD"))
 
 # Класс Portfolio - Ключевой
 class Portfolio:
@@ -136,11 +123,9 @@ class Portfolio:
         # Полный путь файла всех портфолио
         self._f_portfolios = os.path.join( c_path, 'data', 'portfolios.json')
 
-        # по умолчанию создаём USD-кошелёк
-        self.add_currency("USD")
-
         # загружаем портфолио пользователя из файла
-        self.load_portfolio()
+        # в случае испорченного файла портфолио - здесь его загружать не логично
+        #self.load_portfolio()
 
 
     @property
@@ -272,13 +257,8 @@ class Portfolio:
         storage_rates = JsonRatesStorage(config.RATES_FILE_PATH)
         j_table = storage_rates.load()  # Курсы в формате JSON
 
-        # Если мы здесь - то файл прочитался нормально
-        # выше по стеку вызовов нужно сделать обработку исключения
-        try:
-            meta = j_table["meta"]
-        except ValueError:
-            print("Нет информации о дате и источниках обновления !!")
-            return
+        # Если мы здесь - то файл прочитался
+        # Выясняем насколько он целый
 
         try:
             t_curses = j_table["rates"]
@@ -306,8 +286,6 @@ class Portfolio:
                 cross_name2 = base_currency + '_' + "USD"
                 d_curs1 = t_curses.get(cross_name1)
                 d_curs2 = t_curses.get(cross_name2)
-                if d_curs1 is None or d_curs2 is None: #Нет информации о курсах
-                    return -1
                 d_curs = d_curs1 / d_curs2  # Ну вряд ли курс может быть равен 0
                 return d_curs
 
@@ -338,7 +316,9 @@ class Portfolio:
 
         content = [] #Готовим чистый список
 
-        if os.path.exists(self._f_portfolios) and (os.path.getsize(self._f_portfolios) ==0 ): # noqa: E501
+        #Чудеса с фалами
+        if  (os.path.exists(self._f_portfolios) and
+                (os.path.getsize(self._f_portfolios) ==0 )) :
             os.remove(self._f_portfolios)
 
         if os.path.exists(self._f_portfolios): #если файл есть и он не пустой
@@ -347,12 +327,8 @@ class Portfolio:
 
         user_portf = self.wallets_to_dict()
 
-        #print( user_portf)
-
         #Добавляем Portfolio пользователя в общий список
         content.append(user_portf)
-
-        #print(content)
 
         # перезаписываем файл если он был, если не был то создаем новый
         with open( self._f_portfolios, 'w', encoding='utf-8') as f:
@@ -366,13 +342,11 @@ class Portfolio:
     def load_portfolio(self) -> None :
         """ Загружаем портфолио из фала """       
  
-        # Бывают прикольчики
-        if not os.path.exists( self._f_portfolios) :
-            print("Файл портфолио не найден !!!\n\n")
-            return
-
-        if os.path.getsize(self._f_portfolios) == 0 :
-            print("Файл портфолио испорчен !!!\n\n")
+        #Если файла нет или он нулевой длины - то создаем новый файл
+        if  ( not os.path.exists(self._f_portfolios) or
+                (os.path.getsize(self._f_portfolios) ==0 )) :
+            self.add_currency("USD")
+            self.add_portfolio_to_file()
             return
 
         content = [] #Готовим чистый список
@@ -388,16 +362,13 @@ class Portfolio:
                 t_wallets = d_item["wallets"] # Нашли кошельки пользователя
                 break
 
-        # Типа новый пользователь - добавиляем кошелек новичку
+        # Типа новый пользователь - добавляем кошелек новичку
         if t_wallets is None :
+            # по умолчанию создаём USD-кошелёк
+            # Если такого кошелька еще не было - добавляем
+            self.add_currency("USD")
             self.add_portfolio_to_file()
             return
-
-        #print(f'Нашли кошельки пользователя - {t_wallets}\n\n')
-
-        # образец ожидаемого словаря для Wallet.from_dict(dict)
-        #{"currency_code": "BTC", "balance": 0.05}
-        #{"currency_code": "USD", "balance": 1200.0}
 
         # пока Заполняем данные кошельков вручную
         for t_item in t_wallets :
@@ -406,17 +377,12 @@ class Portfolio:
             #Вносим сумму валюты в кошелек
             self.get_wallet(t_item).deposit( float(t_wallets[t_item]["balance"]))
 
-       # Отладочная информация
-       #print(f' Валюта - t_item = {t_item}\n\n')
-       #print(f' Кошелек - t_wallets[t_item] = {t_wallets[t_item]}\n\n')
-       #print(f'Сумма t_wallets[t_item]["balance"] = {t_wallets[t_item]["balance"]}\n')
-
 
     # Конец load_portfolio
 
     # Показываем портфолио текущего ползователя
     # посмотреть свой портфель и балансы (show-portfolio);
-    def show_portfolio(self) -> None :
+    def show_portfolio(self, __base_currency : str = "USD") -> None :
 
         """ Показываем портфолио текущего пользователя - оно уже в памяти """
 
@@ -429,7 +395,8 @@ class Portfolio:
             print(f' - {item} :  {t_wal["balance"]:10.4f} -> {t_calc:10.4f}\n')
 
         print(' -----------------------------------------------')
-        print(f' ИТОГО :  {self.get_total_value("USD"):10.4f}  USD')
+        print(f'СУММА  {self.get_total_value(__base_currency):10.4f} '
+              f'{__base_currency}')
 
     # Конец show_portfolio
 
@@ -569,75 +536,3 @@ class User:
             hashed_password=data["hashed_password"],
             registration_date=data["registration_date"],
         )
-
-#Как временное решение
-#Кодыв валют в списке
-
-LIST_VAL = ['ZWL',
-            'ZMW',
-            'ZAR',
-            'YER',
-            'VND',
-            'VEF',
-            'UZS',
-            'UYU',
-            'UYI',
-            'USD',
-            'UGX',
-            'UAH',
-            'TZS',
-            'TWD',
-            'TTD',
-            'TRY',
-            'TOP',
-            'TND',
-            'TMT',
-            'TJS',
-            'THB',
-            'SZL',
-            'SYP',
-            'SVC',
-            'STD',
-            'SSP',
-            'SRD',
-            'SOS',
-            'SLL',
-            'SGD',
-            'SEK',
-            'SAR',
-            'RWF',
-            'RUB',
-            'RSD',
-            'RON',
-            'QAR',
-            'PLN',
-            'PKR',
-            'PHP',
-            'PGK',
-            'PEN',
-            'PAB',
-            'OMR',
-            'NZD',
-            'NOK',
-            'MYR',
-            'MDL',
-            'KZT',
-            'KRW',
-            'KGS',
-            'JPY',
-            'ILS',
-            'EUR',
-            'EGP',
-            'CZK',
-            'CNY',
-            'CHF',
-            'BRL',
-            'AZN',
-            'AWG',
-            'AUD',
-            'ARS',
-            'AMD',
-            'ALL',
-            'AFN',
-            'AED',
-            'BTC']	

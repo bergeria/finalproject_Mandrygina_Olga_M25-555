@@ -1,102 +1,112 @@
-# Singleton SettingsLoader (конфигурация)
+#settins.py
 
-#Что именно хранит SettingsLoader
+#config.json <- ключи храним здесь
 
-#Минимальный набор конфигурации (по ТЗ):
+#список ключей
+#paths.data_dir — путь к data/
+#paths.rates_json — путь к файлу с кешем курсов
+#paths.exchange_json - путь к файлу с историей курсов
+#paths.portfolios_json - путь к файлу с портфолио
+#paths.users_json - путь к файлу с информацией о пользователях
+#paths.logs_dir — путь к папке логов
+#rates.ttl_seconds — TTL курсов
 
-#DATA_DIR            — путь к данным (json, портфели, курсы)
-#RATES_TTL_SECONDS   — TTL курсов валют
-#BASE_CURRENCY       — базовая валюта (например "USD")
-#LOGS_DIR            — путь к логам
-#LOG_FORMAT          — формат логирования
-
+from __future__ import annotations
 
 import json
-#import os  # Будет использоваться
-import tomllib  # Python 3.11+
+from pathlib import Path
 from typing import Any
+
+#Данные конфигурации по умолчанию
+DEFAULT_CFG = {
+  "paths": {
+    "data_dir": "data",
+    "rates_json": "rates.json",
+    "exchange_json": "exchange_rates.json",
+    "portfolios_json": "portfolios.json",
+    "users_json": "users.json",
+    "logs_dir": "logs"
+  },
+  "rates": {
+    "ttl_seconds": 1200
+  }
+}
 
 
 class SettingsLoader:
     """
-    Singleton для загрузки и кеширования конфигурации проекта.
+    Singleton для конфигурации приложения.
+
+    Реализация через __new__:
+    - гарантирует единый экземпляр даже если SettingsLoader() вызывают многократно.
+    Загружает config.json, и кеширует данные в памяти.
     """
 
-    _instance = None
-    _initialized = False
+    _instance: "SettingsLoader | None" = None
+    _initialized: bool = False
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, config_path: str | Path = "config.json") -> "SettingsLoader":
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance
 
-    def __init__(self, config_path: str | None = None) -> None:
-        # защита от повторной инициализации
+    def __init__(self, config_path: str | Path = "config.json") -> None:
+        #Важно: __init__ при Singleton будет вызываться каждый раз при SettingsLoader()
+        # поэтому делаем "инициализацию один раз".
         if self.__class__._initialized:
             return
 
-        self._config_path = config_path
-        self._settings: dict[str, Any] = {}
+        self._config_path = Path(config_path)
+        self._data: dict[str, Any] = {}
+        self.reload()  # первичная загрузка
 
-        self._load()
         self.__class__._initialized = True
 
-
-    def _load(self) -> None:
-        """
-        Загружает конфигурацию из pyproject.toml или config.json
-        """
-
-        # 1️⃣ pyproject.toml
-        if self._config_path and self._config_path.endswith(".toml"):
-            with open(self._config_path, "rb") as f:
-                data = tomllib.load(f)
-
-            self._settings = data.get("tool", {}).get("valutatrade", {})
-
-        # 2️⃣ config.json
-        elif self._config_path and self._config_path.endswith(".json"):
-            with open(self._config_path, "r", encoding="utf-8") as f:
-                self._settings = json.load(f)
-
-        # 3️⃣ fallback defaults
-        else:
-            self._settings = {
-                "DATA_DIR": "./data",
-                "RATES_TTL_SECONDS": 300,
-                "BASE_CURRENCY": "USD",
-                "LOGS_DIR": "./logs",
-                "LOG_FORMAT": "%(asctime)s - %(levelname)s - %(message)s",
-            }
-
-    def get(self, key: str, default: Any = None) -> Any:
-        return self._settings.get(key, default)
+    @property
+    def config_path(self) -> Path:
+        return self._config_path
 
     def reload(self) -> None:
-        self._load()
+        """Перезагрузить конфиг из JSON и обновить кеш."""
+        if not self._config_path.exists():
+            print(f"Файл конфигурации не найден: {self._config_path}")
+            print(f"Используюу параметры по умолчанию: {DEFAULT_CFG}")
+            self._data = DEFAULT_CFG
+            return
 
+        with self._config_path.open("r", encoding="utf-8") as f:
+            loaded = json.load(f)
 
-#[tool.valutatrade]
-#DATA_DIR = "./data"
-#RATES_TTL_SECONDS = 120
-#BASE_CURRENCY = "USD"
-#LOGS_DIR = "./logs"
-#LOG_FORMAT = "%(levelname)s | %(message)s"
+        if not isinstance(loaded, dict):
+            print(f"Файл конфигурации должен быть в формате JSON: {self._config_path}")
+            print(f"Используюу параметры по умолчанию: {DEFAULT_CFG}")
+            self._data = DEFAULT_CFG
+            return
 
-#Проверка Singleton-поведения
-#s1 = SettingsLoader("pyproject.toml")
-#s2 = SettingsLoader()
+        self._data = loaded
 
+    def get(self, key1: str, key2: str) -> Any:
+        """
+        Получить значение по ключу.
+        Если ключ не найден — возвращает default.
+        """
+        level1 = self._data.get(key1, None)
+        if level1 is None:
+            raise KeyError("Отсутствует список путоей к фалам данных !!!")
 
-#Использование в usecases
-#usecases/get_rate.py
+        level2 = level1.get(key2, None)
+        if level2 is None:
+            raise KeyError("Имя файла данных !!!")
+        return level2
 
-settings = SettingsLoader()
-
-def get_rate_usecase(from_code: str, to_code: str) -> float:
-    ttl = settings.get("RATES_TTL_SECONDS", 300)
-
-    # здесь логика кеша / API
-    print(f"TTL курсов: {ttl} сек")
+    def require(self, key: str) -> Any:
+        """
+        Получить значение по ключу, но если отсутствует — бросить KeyError.
+        Удобно для обязательных настроек.
+        """
+        value = self.get(key, default=None)
+        if value is None:
+            raise KeyError(f"Отсутствует обязательный параметр конфигурации: {key}")
+        return value
 
 

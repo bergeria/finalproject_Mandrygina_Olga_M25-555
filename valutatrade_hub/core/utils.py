@@ -5,7 +5,7 @@ import os
 COMMANDS = {
   "register" : "зарегистрироваться - register --username alice --password 1234",
   "login" : "войти в систему - Пример login --username alice --password 1234",
-  "show-portfolio" : "посмотреть свой портфель и балансы ",
+  "show-portfolio" : "посмотреть свой портфель и баланс в желаемой валюте - Пример show-portfolio --base EUR", # noqa: E501
   "get-info" : " Информация о валюте - get-info --currency BTC",
   "buy" : "купить - Пример buy --currency BTC --amount 0.05",
   "sell" : "продать - Пример sell --currency EUR --amount 100",

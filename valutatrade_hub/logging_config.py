@@ -1,49 +1,50 @@
 # valutatrade_hub/infra/logging_config.py
 
+# logging_config.py
+from __future__ import annotations
+
 import logging
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
 
-LOG_DIR = Path("logs")
-LOG_DIR.mkdir(exist_ok=True)
-
-LOG_FILE = LOG_DIR / "actions.log"
-
-
 def setup_logging(
+    logs_dir: str | Path = "logs",
     level: int = logging.INFO,
-    to_console: bool = True,
-    to_file: bool = True,
+    max_bytes: int = 2_000_000,  # ~2MB
+    backup_count: int = 5,
 ) -> None:
     """
-    Единая настройка логирования для всего приложения
+    Настраивает логирование доменных действий в файл с ротацией.
+    Пишем в logs/actions.log.
     """
 
-    handlers: list[logging.Handler] = []
+    logs_path = Path(logs_dir)
+    logs_path.mkdir(parents=True, exist_ok=True)
 
+    logger = logging.getLogger("actions")
+    logger.setLevel(level)
+    logger.propagate = False  # чтобы не дублировать в root
+
+    # Чтобы setup_logging можно было вызывать несколько раз без дублирования хэндлеров
+    if logger.handlers:
+        return
+
+    log_file = logs_path / "actions.log"
+
+    handler = RotatingFileHandler(
+        filename=log_file,
+        maxBytes=max_bytes,
+        backupCount=backup_count,
+        encoding="utf-8",
+    )
+    handler.setLevel(level)
+
+    # Человекочитаемый формат (уровень + timestamp + сообщение)
     formatter = logging.Formatter(
-        "%(levelname)s %(asctime)s %(message)s", #%(name)s пока без имени модуля
+        fmt="%(levelname)s %(asctime)s %(message)s",
         datefmt="%Y-%m-%dT%H:%M:%S",
     )
+    handler.setFormatter(formatter)
 
-    if to_console:
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(formatter)
-        handlers.append(console_handler)
-
-    if to_file:
-        file_handler = RotatingFileHandler(
-            LOG_FILE,
-            maxBytes=5_000_000,  # ~5 MB
-            backupCount=5,
-            encoding="utf-8",
-        )
-        file_handler.setFormatter(formatter)
-        handlers.append(file_handler)
-
-    logging.basicConfig(
-        level=level,
-        handlers=handlers,
-    )
-
+    logger.addHandler(handler)

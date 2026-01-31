@@ -1,48 +1,15 @@
 [
     {
         "user_id": 0,
-        "wallets": {
-            "USD": {
-                "balance": 9248.214594053845
-            },
-            "BTC": {
-                "balance": 0.0567
-            },
-            "EUR": {
-                "balance": 618.7727272727273
-            },
-            "RUB": {
-                "balance": 23076.923076923078
-            },
-            "CNY": {
-                "balance": 310.0
-            },
-            "CHF": {
-                "balance": 140.0
-            }
-        }
+        "wallets": {}
     },
     {
         "user_id": 1,
-        "wallets": {
-            "USD": {
-                "balance": 0.0
-            },
-            "BTC": {
-                "balance": 0.0
-            }
-        }
+        "wallets": {}
     },
     {
         "user_id": 2,
-        "wallets": {
-            "USD": {
-                "balance": 0.0
-            },
-            "BTC": {
-                "balance": 0.0
-            }
-        }
+        "wallets": {}
     },
     {
         "user_id": 3,
@@ -58,40 +25,71 @@
     },
     {
         "user_id": 6,
-        "wallets": {}
+        "wallets": {
+            "USD": {
+                "balance": 10100.072547066331
+            },
+            "EUR": {
+                "balance": 10030.0
+            },
+            "CNY": {
+                "balance": 500.0
+            }
+        }
     },
     {
         "user_id": 7,
-        "wallets": {}
+        "wallets": {
+            "USD": {
+                "balance": 0.0
+            }
+        }
     },
     {
         "user_id": 8,
-        "wallets": {}
+        "wallets": {
+            "USD": {
+                "balance": 0.0
+            }
+        }
     },
     {
         "user_id": 9,
-        "wallets": {}
+        "wallets": {
+            "USD": {
+                "balance": 0.0
+            }
+        }
     },
     {
         "user_id": 10,
-        "wallets": {}
+        "wallets": {
+            "USD": {
+                "balance": 10000.0
+            }
+        }
     },
     {
         "user_id": 11,
-        "wallets": {}
+        "wallets": {
+            "USD": {
+                "balance": 0.0
+            }
+        }
     },
     {
         "user_id": 12,
-        "wallets": {}
+        "wallets": {
+            "USD": {
+                "balance": 0.0
+            }
+        }
     },
     {
         "user_id": 13,
         "wallets": {
             "USD": {
-                "balance": 10000.0
-            },
-            "EUR": {
-                "balance": 10000.0
+                "balance": 0.0
             }
         }
     },
@@ -99,19 +97,40 @@
         "user_id": 14,
         "wallets": {
             "USD": {
-                "balance": 129.47927172819468
-            },
-            "CHF": {
-                "balance": 155.0
+                "balance": 0.0
+            }
+        }
+    },
+    {
+        "user_id": 15,
+        "wallets": {
+            "USD": {
+                "balance": 9866.825208085613
             },
             "CNY": {
-                "balance": 25.0
-            },
-            "BTC": {
-                "balance": 0.0
+                "balance": 3751.0
             },
             "EUR": {
-                "balance": 50.0
+                "balance": 112.0
+            }
+        }
+    },
+    {
+        "user_id": 16,
+        "wallets": {
+            "USD": {
+                "balance": 0.0
+            }
+        }
+    },
+    {
+        "user_id": 17,
+        "wallets": {
+            "USD": {
+                "balance": 9809.750297265162
+            },
+            "EUR": {
+                "balance": 160.0
             }
         }
     }

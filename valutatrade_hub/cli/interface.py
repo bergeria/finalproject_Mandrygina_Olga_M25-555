@@ -5,13 +5,14 @@
 import shlex
 
 from valutatrade_hub.core.exceptions import (
-    CurrencyNotFoundError
+    ApiRequestError,
+    CurrencyNotFoundError,
+    InsufficientFundsError,
 )
-
 from valutatrade_hub.core.usecases import (
     buy,
-    get_currency_info,
     deposit,
+    get_currency_info,
     get_rate,
     login,
     logout,
@@ -26,31 +27,6 @@ from valutatrade_hub.core.utils import (
     show_help,
 )
 
-# Обработка исключений
-#try:
-#    f()
-#except ValueError as e:
-#    print(f"Ошибка значения: {e}")
-#except KeyError as e:
-#    print(f"Нет такой валюты: {e}")
-#except Exception as e:
-#    print(f"Неизвестная ошибка: {e}")
-#finally:
-#    print("Операция завершена")
-
-
-
-# Словарь команд
-COMMANDS = {
-    "register": {"username", "password"},
-    "login": {"username", "password"},
-    "show-portfolio" :{},
-    "buy" : {"currency", "amount"},
-    "sell" : {"currency", "amount"},
-    "get-rate" : {"from", "to"},
-    "show-rates" : {"top", "currency", "base"},
-    "update-rates" : {"source"}
-}
 
 #Глобальная переменная соловарь - хранит информацию о текущем пользователе
 #current_user
@@ -111,33 +87,24 @@ def process_command( command):
 
         case "logout" : # Выход пользователя
             if len(d_command["args"]) > 0 :
-                print('\n\nНеверное количество параметров в команде\n\n')
-                return
+                raise ValueError('\n\nНеверное количество параметров в команде\n\n')
             logout()
 
         case "buy": # Купить валюту
-            buy( d_command["args"])
+                buy(d_command["args"])
 
         case "sell" :  # Продать валюту
-            sell( d_command["args"])
+                sell(d_command["args"])
 
         case "show-portfolio" :
             # показать все кошельки и итоговую стоимость в USD
-            if len(d_command["args"]) > 0 :
-                print('\n\nНеверное количество параметров в команде\n\n')
-                return
-            show_portfolio()
+            show_portfolio(d_command["args"])
 
         case "get-rate" : # получить текущий курс одной валюты к другой
-            get_rate( d_command["args"])
+                get_rate( d_command["args"])
 
-        case "get-info" : # получить текущий курс одной валюты к другой
-            try:
-                get_currency_info( d_command["args"] )
-            except ValueError as e:
-                print( e)
-            except CurrencyNotFoundError as e :
-                print( e)
+        case "get-info" : # получить информацию о валюте
+            get_currency_info( d_command["args"] )
 
         case  "show-rates":  # показать текущие курсы
             show_rates(d_command["args"])
@@ -151,7 +118,7 @@ def process_command( command):
 
         case "quit":  # Выход из программы
             if len(d_command["args"]) > 0 :
-                print('\n\nНеверное количество параметров в команде\n\n')
+                raise ValueError('Количество параметров неверно !!!\n')
                 return
             logout()
 
@@ -159,7 +126,7 @@ def process_command( command):
             show_help()
 
         case _:
-            print('Команда не опознана\n')
+            print('\nКоманда не опознана\n')
             show_help()
 
 def base_work() -> None:
@@ -168,14 +135,15 @@ def base_work() -> None:
     # здесь делаем обработку
     while not action == "quit":
         action = get_input('Введите команду - :')  # Запрашиваем команду от пользователя
-        process_command(action)  # Вызываем обработчик команд
-
-
-#try:
-#    wallet.withdraw(10)
-#except InsufficientFundsError as exc:
-#    print(str(exc))
-#except CurrencyNotFoundError as exc:
-#    print(str(exc))
-#except ApiRequestError as exc:
-#    print(str(exc))
+        try:
+            process_command(action)  # Вызываем обработчик команд
+        except KeyError as e :
+            print(f'\nОшибка - {e} !!!')
+        except ValueError as e:
+            print(f'\nОшибка - не верные параметры - {e}')
+        except CurrencyNotFoundError as e:
+            print(f"\nОшибка - {e}")
+        except InsufficientFundsError as e:
+            print(f"\nОшибка - {e}")
+        except ApiRequestError as e:
+            print(f"Ошибка - {e}")

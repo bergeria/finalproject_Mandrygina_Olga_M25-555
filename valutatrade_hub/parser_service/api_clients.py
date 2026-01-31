@@ -3,10 +3,13 @@
 
 
 from abc import ABC, abstractmethod
-from valutatrade_hub.core.exceptions import ApiRequestError
-from valutatrade_hub.parser_service.config import ParserConfig
+
 import requests
 from requests.exceptions import RequestException
+
+from valutatrade_hub.core.exceptions import ApiRequestError
+from valutatrade_hub.parser_service.config import ParserConfig
+
 
 class BaseApiClient(ABC):
     """

@@ -1,21 +1,13 @@
-# бизнес-логика 
-#usecases.py 
-
-
 import json
 import os
 
 from valutatrade_hub.core.currencies import get_currency
-from valutatrade_hub.core.exceptions import (
-    CurrencyNotFoundError,
-    InsufficientFundsError
-)
 from valutatrade_hub.core.models import (
     Portfolio,
     User,
-    current_portf,
-    current_user,
 )
+from valutatrade_hub.decorators import log_action
+from valutatrade_hub.infra.settings import SettingsLoader
 from valutatrade_hub.parser_service.api_clients import (
     CoinGeckoClient,
     ExchangeRateApiClient,
@@ -27,10 +19,39 @@ from valutatrade_hub.parser_service.storage import (
 )
 from valutatrade_hub.parser_service.updater import RatesUpdater
 
+"""Модуль основной логик"""
+
+#Глобальные переменные текущий пользователь и его портфолио
+current_portf = None
+current_user = None
+
+def get_user_filename() -> str :
+
+    #беерм настройки из Singleton
+    settings = SettingsLoader()
+    try:
+        _path = settings.get( "paths", "data_dir")
+    except KeyError:
+        raise ValueError('Имя файла со списком пользователей\n')
+        return
+
+    try:
+        _name = settings.get( "paths", "users_json")
+    except KeyError :
+        raise ValueError('Относительный путь к файлу со списком пользователей\n')
+        return
+
+    #Получаем текущую рабочую директорию.
+    c_path = os.getcwd()
+    # файл со списком пользователей
+    f_name = os.path.join( c_path, _path, _name)
+
+    return f_name
 
 # обновить курсы - Пример update-rates --source coingecko
 # обновить курсы - Пример update-rates --source exchangerate
 # Пример update-rates - если без параметров то используем оба источника
+#@log_action("UPDATE_RATES", verbose=True)
 def update_rates( __arg_list : dict):
     """Обновление курсов из внешних источников"""
 
@@ -42,7 +63,6 @@ def update_rates( __arg_list : dict):
 
     # Чисты список клиентов
     clients = []
-
 
     #(Файл/JSON storage)
     storage_rates = JsonRatesStorage(config.RATES_FILE_PATH)
@@ -83,7 +103,11 @@ def show_rates( __args : dict ) -> None :
 
     if __args.get("top") is not None: # самые дорогие из всех
         # Сортируем по убыванию value
-        cnt = int(__args.get("top"))
+        __t_val = __args.get("top")
+        try :
+            cnt = int(__t_val)
+        except ValueError :
+            raise ValueError('\nКоличество валют должно быть целым числом\n')
         sorted_data = dict(sorted(curses["rates"].items(),
                                   key=lambda item: item[1],
                                   reverse=True)[:cnt])
@@ -98,7 +122,7 @@ def show_rates( __args : dict ) -> None :
         c_name = "".join(f'{__args.get("currency")}_USD')
         crs = curses["rates"].get(c_name)
         if crs is None :
-            print(f'Курс не найден {curses["rates"].get("currency")}\n')
+            print(f'Курс не найден {c_name}\n')
             return
         print(f' -  {c_name} : {crs:16.8f}\n')
         return
@@ -124,49 +148,35 @@ def get_rate( __arg_list : dict) :
     """Назначение: получить текущий курс одной валюты к другой из rates.json"""
     global current_portf
 
-    __from = __arg_list.get( "from", None)
-    __to = __arg_list.get( "to", None)
+    try:
+        __from = __arg_list["from"]
+        __to = __arg_list[ "to"]
+    except KeyError :
+        raise ValueError("Не верные параметры !!\n")
 
-    if __from is None or __to is None :
-        print('Некорректная команда')
-        return
+    # Прежде чем искать курсы
+    # Проверяем корректность кодов валют
+    get_currency( __from)
+    get_currency( __to)
 
-    match True:
-        case x if __to == "USD": # Типа прямой курс
-            d_curs = Portfolio._get_exchange_rates( __from, __to)
-            if d_curs is None :
-                print("Нет информации о курсах !!\n")
-                return
-            print(f'Найденный курс {d_curs:16.4f} !!\n') # Формат 16.4f
+    d_curs = Portfolio._get_exchange_rates(__from, __to)
+    if d_curs is None:
+        raise ValueError("Нет информации о курсах !!\n")
 
-        case x if  __from == "USD": # Обратный курс
-            d_curs = Portfolio._get_exchange_rates(__to, __from)
-            if d_curs is None :
-                print("Нет информации о курсах !!\n")
-                return
-            d_curs = 1/d_curs # Ну вряд ли курс может быть равен 0
-            print(f'Найденный курс {d_curs:16.8f} !!\n') # Формат 16.8f
-
-        case x if "USD" not in [__from, __to]:  # Кросс курс
-            print('Все курсы привязаны к доллару - попробуем найти кросс курс !!!\n')
-            print(f'Запрошен курс {__from} к {__to} !!!\n')
-            d_curs = Portfolio._get_exchange_rates(__from, __to)
-            if d_curs is None:
-                print("Нет информации о курсах !!\n")
-                return
-            print(f'Найденный курс {__from} к {__to} - {d_curs:16.8f} !!\n')
-
-    return
+    print(f'Найденный курс {d_curs:16.4f} !!\n')  # Формат 16.4f
 
     # Конец get-rate
+
+
+#Для логирования
+@log_action("SELL", verbose=True)
+def __sell(  username: str, currency_code: str, amount: float ) -> None :
+    pass
 
 #Команда sell
 #   Аргументы:
 #   *    --currency <str> — код валюты.
 #   *    --amount <float> — количество продаваемой валюты.
-#Пример:
-#    > sell --currency EUR --amount 100
-
 def sell( __arg_list : dict) :
 
     """Назначение: продать валюту"""
@@ -174,58 +184,49 @@ def sell( __arg_list : dict) :
     global current_user
     global current_portf
 
-    #Прверяем есть ли активный пользователь
+    #Проверяем есть ли активный пользователь
     if current_user is None :
-        print('\n\nСначала войдите в систему\n\n')
-        return
+        raise ValueError("\n\n !!! Сначала войдите в систему !!!\n\n")
 
-    __currency = __arg_list.get( "currency", None) 
-    __amount = __arg_list.get( "amount", None)
-
-    if __currency is None or __amount is None :
-        print('Некорректная команда')
-        return
-
-    # Здесь нужно проверить код валюты на наличие в курсах
+    # Параметры по ключам, если нет -> KeyError Неверные параметры
     try:
-        get_currency(__currency)
-    except CurrencyNotFoundError as e:
-        print( e)
-        return
+        __currency = __arg_list["currency"]
+        __amount = __arg_list["amount"]
+    except KeyError :
+        raise ValueError("\n\n !!! Не верные параметры !!!\n\n")
+
+    # Проверяем код валюты на наличие в курсах
+    get_currency(__currency)
 
     # Проверяем количество на предмет числового значения
     try :
         __amount = float(__amount)
-    except ValueError as e:
-        print('\n\n Количество указано не верно !!!\n\n')
-        return
+    except ValueError:
+        raise ValueError('Сумма указана не верно !!!\n')
+    except TypeError:
+        raise ValueError('Сумма указана не верно !!!\n')
 
     #Прверяем желаемое количество валюты
     if __amount <= 0 :
-        print("\n\n Количество желаемой валюты должно быть больше 0\n\n")
-        return
+        raise ValueError('Сумма должна быть больше 0 !!!\n')
 
-    # Портфолито до продажи
-    #current_portf.show_portfolio()
+    # Обработка исключений в interface.py
+    current_portf.sell_currency( __currency, __amount)
 
-    # Обработка исключений
-    try:
-        current_portf.sell_currency( __currency, __amount)
-    except ValueError as e:
-        print(f"Ошибка операции: {e}")
-        return
-    except KeyError as e:
-        print(f"Ошибка операции: {e}")
-        return
-    except InsufficientFundsError as e:
-        print(f"Ошибка операции: {e}")
-        return
-
-    # Сохраняем Портфолито
+    # Сохраняем портфолио
     current_portf.save_portfolio()
+
+    #Для логировнаия
+    __sell(  username = current_user.username,
+            currency_code = __currency,
+            amount = __amount)
 
     #Конец sell
 
+#Для логирования
+@log_action("BUY", verbose=True)
+def __buy(  username: str, currency_code: str, amount: float ) -> None :
+    pass
 
 #купить валюту (buy);
 #   --currency <str> — код покупаемой валюты (например, BTC).
@@ -237,60 +238,52 @@ def buy( __arg_list : dict) -> None:
     global current_user
     global current_portf
 
-    #Прверяем есть ли активный пользователь
+    #Проверяем есть ли активный пользователь
     if current_user is None :
-        print('\n\nСначала войдите в систему\n\n')
-        return
+        raise ValueError("\n\n !!! Сначала войдите в систему !!!\n\n")
 
-    __currency = __arg_list.get( "currency", None) 
-    __amount = __arg_list.get( "amount", None)
-
-    if __currency is None or __amount is None :
-        print('Некорректная команда')
-        return
+    # Параметры по ключам, если нет -> KeyError Неверные параметры
+    try:
+        __currency = __arg_list["currency"]
+        __amount = __arg_list["amount"]
+    except KeyError :
+        raise ValueError("Не верные параметры !!\n")
 
     # Здесь нужно проверить код валюты на наличие в курсах
-    try:
-        get_currency(__currency)
-    except CurrencyNotFoundError as e:
-        print( e)
-        return
+    get_currency(__currency)
 
     # Проверяем количество на предмет числового значения
     try :
         __amount = float(__amount)
-    except ValueError as e:
-        print('\n\n Количество указано не верно !!!\n\n')
-        return
+    except ValueError:
+        raise ValueError('Сумма указана не верно !!!\n')
+    except TypeError:
+        raise ValueError('Сумма указана не верно !!!\n')
 
     #Прверяем желаемое количество валюты
     if __amount <= 0 :
-        print("\n\n Количество желаемой валюты должно быть больше 0\n\n")
-        return
+        raise ValueError('Сумма должна быть больше 0 !!!\n')
 
     # Портфолито до покупки
     #current_portf.show_portfolio()
 
-    # Обработка исключений
-    try:
-        current_portf.buy_currency( __currency, __amount)
-    except ValueError as e:
-        print(f"Ошибка операции: {e}")
-        return
-    except KeyError as e:
-        print(f"Ошибка операции: {e}")
-        return
-    except InsufficientFundsError as e:
-        print(f"Ошибка операции: {e}")
-        return
+    current_portf.buy_currency( __currency, __amount)
 
-    # Сохраняем Портфолио
+    #Если до этого места возникнут исключения - то мы суда не придем
+    # Сохраняем портфолио
     current_portf.save_portfolio()
 
-    # Портфолио после покупки
-    #current_portf.show_portfolio()
+    #Для логировнаия
+    __buy(  username = current_user.username,
+            currency_code = __currency,
+            amount = __amount)
 
     #Конец Buy
+
+#Для логирования
+@log_action("DEPOSIT", verbose=True)
+def __depopsit(  username: str, currency_code: str, amount: float ) -> None :
+    pass
 
 #Внести деньги на баланс
 def deposit( __args : dict) -> None:
@@ -300,22 +293,29 @@ def deposit( __args : dict) -> None:
 
     #Прверяем есть ли активный пользователь
     if current_user is None :
-        print('\n\nСначала войдите в систему\n\n')
-        return
+        raise ValueError('\n\nСначала войдите в систему\n\n')
 
-    currency_code = __args.get("currency", None)
-    amount = __args.get("amount", None)
+    # Если нужных параметров нет, то будет исключение KeyError
+    try:
+        currency_code = __args["currency"]
+        amount = __args["amount"]
+    except KeyError :
+        raise ValueError("Не верные параметры !!\n")
 
-    if currency_code is None or amount is None :
-        print('\n\nКоманда не опознана \n\n')
-        return
+    if currency_code is None or amount is None : # это уже наверное перебор
+        raise ValueError('\n\nНеверные параметры команды !!!\n\n')
+
+    #Проверяем amount - на предмет числового значения
+    try:
+        amount = float(amount)
+    except ValueError :
+        raise ValueError('\n Количество валюты должно быть числом\n')
+
+    if amount <= 0 :
+        raise ValueError('\n Количество валюты должно быть > 0\n')
 
     # Здесь нужно проверить код валюты на наличие в курсах
-    try:
-        get_currency(currency_code)
-    except CurrencyNotFoundError as e:
-        print( e)
-        return
+    get_currency(currency_code)
 
     # Нужно проверить наличие кошелька
     # Если такого кошелька еще не было - добавляем
@@ -323,22 +323,24 @@ def deposit( __args : dict) -> None:
         current_portf.add_currency(currency_code)
 
     # Берем кошелек
-    target_wallet = current_portf.get_wallet( __args["currency"])
+    target_wallet = current_portf.get_wallet( currency_code)
 
     #Пополняем кошелек
-    try:
-        target_wallet.deposit( float(amount))
-    except ValueError as e:
-        print( e)
-        return
+    target_wallet.deposit( amount)
 
     # Ссохраняем Портфолито
     current_portf.save_portfolio()
 
+    #Для логирования
+    __depopsit(  username = current_user.username,
+                 currency_code = currency_code,
+                 amount = amount)
+
+    #Конец deposit
 
 
 #показать все кошельки и итоговую стоимость в базовой валюте (по умолчанию USD).
-def show_portfolio() : #__base = "USD"
+def show_portfolio(  __args : dict) : # в указанной валюте
 
     """показать все кошельки и итоговую стоимость в базовой валюте (по умолчанию USD)"""
 
@@ -347,13 +349,33 @@ def show_portfolio() : #__base = "USD"
 
     #Прверяем есть ли активный пользователь
     if current_user is None :
-        print('\n\nСначала войдите в систему\n\n')
-        return
+        raise ValueError('\n\nСначала войдите в систему\n\n')
 
-    current_portf.show_portfolio()
+    # Для контроля параметров
+    __currency_code = None
+
+    #Если есть какие-то параметры - то пробуем их разобрать
+    if len(__args) != 0:
+        try:
+            __currency_code = __args["base"]
+        except KeyError: # Если нет ключа "base"
+            raise ValueError('Неверные параметры !!!!\n\n')
+
+    if __currency_code is None:
+        __currency_code = "USD" # Если кода нет - то USD
+
+    # код есть, его надо проверить на наличие
+    get_currency(__currency_code)
+
+    # Показываем портфолио
+    current_portf.show_portfolio( __currency_code)
+    # И общую сумму в нужной валюте
 
     # Конец show_portfolio
 
+@log_action("REGISTER")
+def __register( username: str, user_id: int) :
+    pass
 
 def register( __arg_list : dict) :
     
@@ -364,29 +386,23 @@ def register( __arg_list : dict) :
 
     #Прверяем есть ли активный пользователь
     if current_user is not None :
-        print('Сначала закройте сессию теущего пользователя')
-        return
+        raise ValueError("\n!!! Сначала закройте сессию текущего пользователя !!!\n")
 
-    if len(__arg_list) != 2:
-        print('Некорректная команда')
-        return
-
-    __username = __arg_list.get("username", None)
-    __password = __arg_list.get("password", None)
+    try:
+        __username = __arg_list["username"]
+        __password = __arg_list["password"]
+    except KeyError :
+        raise ValueError("Не верные параметры !!\n")
 
     if __username is None or __password is None :
-        print('Некорректная команда')
-        return
+        raise ValueError("\n\n !!! Неверные пркаметры !!!\n\n")
 
     #Прверяем длину пароля
     if len(__password) < 4 :
-        print('\n\nОшибка - Пароль должен быть не менее 4-х символов !!!\n\n')
-        return
+        raise ValueError("\n Пароль должен быть не менее 4-х символов !!!\n")
 
-    #Возвращает текущую рабочую директорию.
-    c_path = os.getcwd()
-    # файл со списком пользователей
-    f_users = os.path.join( c_path, 'data', 'users.json')
+    #Получаем полное имя файла с данными пользователей
+    f_users = get_user_filename()
 
     # Бывают прикольчики
     if os.path.exists(f_users) and (os.path.getsize(f_users) == 0) :
@@ -398,14 +414,15 @@ def register( __arg_list : dict) :
     if os.path.exists(f_users): #если файл есть и он не пустой
         with open(f_users, 'r', encoding='utf-8') as f:
             content = json.load(f) # Читаем и разбираем json формат
+        if not isinstance(content, list):
+            raise ValueError('Файл данных должен быть в формате JSON')
         #Проверяем имя пользователя
         for d_item in content :
             if d_item["username"] != __username :
                 if d_item["user_id"]  > tst :
                     tst = d_item["user_id"] # Ищем "последнее" значение "user_id"
             else : # если пользователь есть - то Ошибка
-                print(f' Имя занято - {d_item["username"]}!!!\n')
-                return
+                raise ValueError(f' Имя занято - {d_item["username"]}!!!\n')
 
     # Был файл или не был -> продолжаем
     # И имя пользователя является уникальным
@@ -423,14 +440,19 @@ def register( __arg_list : dict) :
     with open( f_users, 'w', encoding='utf-8') as f:
         json.dump( content, f, indent=4, ensure_ascii=False)
 
-    # Создать экземпляр класа Portfolio для пользователя
+    # Создать экземпляр класса Portfolio для пользователя
     current_portf = Portfolio( current_user)
+    # Добавляем базовый кошелек новому пользователю
+    current_portf.add_currency("USD") # а может и не надо
 
-    # Добавляем нового пользователя Portfolio в 'portfolios.json'
-    #current_portf.add_portfolio_to_file()
+    # Сохраняем портфолио
+    current_portf.add_portfolio_to_file()
 
     #Вроде успех
     print(f'\n {list_dict["username"]} зарегистрирован id({list_dict["user_id"]})\n')
+
+    #Для логирования
+    __register( username = list_dict["username"], user_id = list_dict["user_id"])
 
     #очищаем current_user И current_portf - регистрация - это не логин
     current_user = None
@@ -440,8 +462,13 @@ def register( __arg_list : dict) :
 
     # Конец register
 
+@log_action("LOGIN")
+def __login(  username: str, user_id: int) :
+    pass
+
 
 #войти в систему
+#@log_action("LOGIN")
 def login( __arg_list : dict) :
 
     """Вход пользователя в систему"""
@@ -449,37 +476,38 @@ def login( __arg_list : dict) :
     global current_user
     global current_portf
 
-    #Прверяем есть ли активный пользователь
+    #Проверяем есть ли активный пользователь
     if current_user is not None :
-        print('Сначала закройте сессию теущего пользователя')
-        return
+        raise ValueError("\n\n Сначала закройте сессию текущего пользователя\n\n")
 
     if len(__arg_list) != 2:
-        print('Некорректная команда')
-        return
+        raise ValueError("\n\n !!! Неверные параметры !!!\n\n")
 
-    #print('Список аргументов __arg_list - ', __arg_list, '\n')
-
-    __username = __arg_list.get("username", None)
-    __password = __arg_list.get("password", None)
+    try:
+        __username = __arg_list["username"]
+        __password = __arg_list["password"]
+    except KeyError :
+        raise ValueError("Не верные параметры !!\n")
 
     if __username is None or __password is None :
-        print('Некорректная команда')
-        return
+        raise ValueError("\n\n !!! Неверные параметры !!!\n\n")
 
-    #Получаем текущую рабочую директорию.
-    c_path = os.getcwd()
-    # файл со списком пользователей
-    f_users = os.path.join( c_path, 'data', 'users.json')
+    #Получаем полное имя файла с данными пользователей
+    f_users = get_user_filename()
 
     # Бывают прикольчики
-    if ( not os.path.exists(f_users)) or ( os.path.getsize(f_users) and (os.path.getsize(f_users) == 0)) : # noqa: E501
-        print("Пользователь с таким логином не найден\n\n")
-        return
+    if (( not os.path.exists(f_users)) or # Файл не найден
+            ( os.path.getsize(f_users) and
+              (os.path.getsize(f_users) == 0))) : # Файл пустой
+        raise ValueError(f'\nПользователь - {__username} - не найден\n')
 
     #Если мы здесь - то файл есть и он не пустой
     with open(f_users, 'r', encoding='utf-8') as f:
         content = json.load(f) # Читаем и разбираем json формат
+
+    if not isinstance(content, list):
+        print("Неверный формат файла с регистрационными данными пользователей !!!")
+        return
 
     #Ищем имя пользователя в списке всех пользователей
     t_user = {}
@@ -490,8 +518,7 @@ def login( __arg_list : dict) :
             break
 
     if len(t_user) == 0 :
-        print("Нет такого пользователя → \n\nПользователь '", __username, "' не найден")
-        return
+        raise ValueError(f'\nПользователь - {__username} - не найден\n')
 
     #Если мы здесь - значит пользователь найден и нужно проверить пароль
    
@@ -499,19 +526,26 @@ def login( __arg_list : dict) :
     t_pass = User._h_password( __password, t_user["salt"])
 
     if t_pass != t_user["hashed_password"] :
-        print('\n\nОшибка - Неверный пароль !!!\n\n')
-        return
-    
+        raise ValueError('\n\nОшибка - Неверный пароль !!!\n\n')
+
     #Инициализируем экземпляр класса - и заполняем глобальную переменную
     current_user = User.from_dict( t_user)
 
-    # Создать экземпляр класа Portfolio и дать ему пользователя
+    # Создать экземпляр класса Portfolio и дать ему пользователя
     current_portf = Portfolio( current_user)
+    current_portf.load_portfolio()
 
     print('\n\nВы вошли как - ', t_user["username"], '\n\n')
-    return
+
+    #Для логирования
+    __login( username = t_user["username"], user_id = t_user["user_id"])
     #Конец login
 
+
+#Для логирования
+@log_action("LOGOUT", verbose=True)
+def __logout(  username: str, user_id: int) :
+    pass
 
 #выйти из системы
 def logout() :
@@ -522,9 +556,12 @@ def logout() :
     global current_portf
 
     if current_user is None :
-        return # Если не было login
+        raise ValueError('\n Нет текущего пользователя \n') # Если не было login
 
-    #Типа выходим - заполняем глобальные переменные
+    #Для логирования
+    __logout( username = current_user.username, user_id = current_user.user_id)
+
+    # Типа выходим - заполняем глобальные переменные
 
     # Очищаем профиль текущего пользователя
     current_portf = None
@@ -532,7 +569,7 @@ def logout() :
     # Очищаем текущего пользователя
     current_user = None
 
-    print( " Выход пользователя из системы - logout\n")
+    print( " Вы вышли из системы\n")
 
     #Конец logout
 
@@ -544,61 +581,7 @@ def get_currency_info ( __args : dict) :
     if code is None :
         raise ValueError("Ошибка в параметрах !!!")
 
-    try:
-        currency = get_currency( code)
-    except CurrencyNotFoundError( code) as e:
-        print( e)
-        return
+    #Если такой валюты нет то будет исключение CurrencyNotFound
+    currency = get_currency( code)
 
-    print(currency.get_display_info())
-
-
-
-#from core.decorators import log_action
-
-
-#@log_action("BUY")
-#def buy(
-#    *,
-#    user_id: int,
-#    currency_code: str,
-#    amount: float,
-#    rate: float,
-#   base_currency: str = "USD",
-#):
-
-
-#@log_action("SELL", verbose=True)
-#def sell(
-#    *,
-#    user_id: int,
-#    currency_code: str,
-#    amount: float,
-#    rate: float,
-#    base_currency: str = "USD",
-#):
-
-#@log_action("REGISTER")
-#def register(username: str, password: str):
-
-#import json
-#import os
-
-#from valutatrade_hub.core.models import (
-#    Portfolio,
-#    User,
-#    current_portf,
-#    current_user,
-#)
-
-# Обработка исключений
-#try:
-#    f()
-#except ValueError as e:
-#    print(f"Ошибка значения: {e}")
-#except KeyError as e:
-#    print(f"Нет такой валюты: {e}")
-#except Exception as e:
-#    print(f"Неизвестная ошибка: {e}")
-#finally:
-#    print("Операция завершена")
+    print('\n', currency.get_display_info())
